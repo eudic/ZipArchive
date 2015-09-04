@@ -414,7 +414,7 @@
                     [orgDate release];
                     orgDate = nil;
                 }
-                
+                [self addSkipBackupAttributeToItemAtPath:fullPath];
             }
             
             if (ret == UNZ_OK) {
@@ -438,6 +438,13 @@
         }
 	} while (ret==UNZ_OK && ret!=UNZ_END_OF_LIST_OF_FILE);
 	return success;
+}
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString *) filePathString
+{
+    NSURL* URL= [NSURL fileURLWithPath: filePathString];
+    BOOL success = [URL setResourceValue: [NSNumber numberWithBool: YES]
+                                  forKey: NSURLIsExcludedFromBackupKey error: nil];
+    return success;
 }
 
 -(NSDictionary *)UnzipFileToMemory
@@ -604,7 +611,7 @@
         filename[fileInfo.size_filename] = '\0';
         
         // check if it contains directory
-        NSString * strPath = [NSString stringWithCString:filename encoding:self.stringEncoding];
+        NSString * strPath = [NSString stringWithCString:filename encoding:NSASCIIStringEncoding];
         free( filename );
         if( [strPath rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/\\"]].location!=NSNotFound )
         {// contains a path
